@@ -112,7 +112,7 @@ class Dashboard extends Component {
   componentDidMount() {
     
     this.getTempData();
-   // this.getHumidity();
+    this.getHumidity();
   }
 
   _onButtonClick1() {
@@ -130,12 +130,12 @@ class Dashboard extends Component {
       showComponent2: true,
       showComponent1: false
     });
-  //  this.getHumidity();
+   this.getHumidity();
   }
 
   getTempData = async () => {
     console.log("in graph");
-  
+    var i=0;
     const questions = [];
 
     // DOING GET API REQUEST TO FETCH THE TEMP  STATISTICS
@@ -158,7 +158,8 @@ class Dashboard extends Component {
 
     resultJson.records.forEach(item => {
             if (date.getDate() === new Date(item.received_on).getDate())
-            { questions.push({'name': item.device_value, 'Temperature': item.device_value});
+            { questions.push({'name': item.device_value, 'Temperature': item.device_value,'Humidity': 10+i});
+            i++
           }
      
     })
@@ -168,39 +169,40 @@ class Dashboard extends Component {
        resultJson: questions
     });
   };
-  // getHumidity = async () => {
-  //   var date = new Date();
-    
-  //   const questions = [];
-  //   console.log(date);
+  getHumidity = async () => {
+    var date = new Date();
+    var i=0;
+    const questions = [];
+    console.log(date);
 
-  //   // DOING GET API REQUEST TO FETCH THE TEMP  STATISTICS
-  //   const result = await fetch(
-  //     `http://cm1.sensegiz.com/sensegiz-api/humidity`,
-  //     {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         uid: "8",
-  //         "Api-Key": "175748dfd70bc49b190aacf3a5ce0d86"
-  //       }
-  //     }
-  //   );
-  //   const resultJson = await result.json();
-  //   //console.log(JSON.stringify(resultJson));
+    // DOING GET API REQUEST TO FETCH THE TEMP  STATISTICS
+    const result = await fetch(
+      `http://cm1.sensegiz.com/sensegiz-api/humidity`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          uid: "8",
+          "Api-Key": "175748dfd70bc49b190aacf3a5ce0d86"
+        }
+      }
+    );
+    const resultJson = await result.json();
+    //console.log(JSON.stringify(resultJson));
 
-  //   resultJson.records.forEach(item => {
-  //     if (date.getDate() === new Date(item.received_on).getDate())
-  //     {
-  //     questions.push({'name': item.device_value,'Humidity': item.device_value});
-  //     }
-  //   })
+    resultJson.records.forEach(item => {
+      if (date.getDate() === new Date(item.received_on).getDate())
+      {
+      questions.push({'name': item.device_value,'Humidity': item.device_value,'Temperature': 10+i});
+      }
+      i++;
+    })
 
    
-  //   this.setState({
-  //      resultJson: questions
-  //   });
-  // };
+    this.setState({
+       resultJson: questions
+    });
+  };
 
   render() {
     return (
