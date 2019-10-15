@@ -25,7 +25,13 @@ import Notifications from "views/Notifications.jsx";
 import Upgrade from "views/Upgrade.jsx";
 
 const dashboardRoutes = [
-  {
+{
+    path: "/user",
+    name: "User Profile",
+    icon: "pe-7s-user",
+    component: UserProfile,
+    layout: "/admin"
+  },  {
     path: "/dashboard",
     name: "Dashboard",
     icon: "pe-7s-graph",
