@@ -1,20 +1,3 @@
-/*!
-
-=========================================================
-* Light Bootstrap Dashboard React - v1.3.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/light-bootstrap-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/light-bootstrap-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React, { Component } from "react";
 import ChartistGraph from "react-chartist";
 import {
@@ -27,12 +10,7 @@ import {
   Legend
 } from "recharts";
 
-import {
-  ComposedChart,
- 
-  Area,
-  Bar
-} from "recharts";
+import { ComposedChart, Area, Bar } from "recharts";
 import { Grid, Row, Col } from "react-bootstrap";
 
 import { Card } from "components/Card/Card.jsx";
@@ -110,9 +88,26 @@ class Dashboard extends Component {
   }
 
   componentDidMount() {
-    
-    this.getTempData();
-    this.getHumidity();
+    // var promise1 = this.getTempData();
+    // var promise2 = this.getHumidity();
+    // Promise.all([promise1, promise2])
+    //   .then(result => {
+    //     console.log((result));
+    //     // var finalRes = [];
+    //     // result.forEach(function(item) {
+    //     //     item.forEach(function(val) {
+    //     //       var obj = {
+    //     //         "name" : val.name,
+    //     //         "temperature" : val.temperature,  
+    //     //       }
+    //     //     });
+    //     // });
+    //   })
+    //   .catch(val => {
+    //     console.log(val);
+    //   });
+   this.getTempData();
+     this.getHumidity();
   }
 
   _onButtonClick1() {
@@ -130,77 +125,79 @@ class Dashboard extends Component {
       showComponent2: true,
       showComponent1: false
     });
-   this.getHumidity();
+    this.getHumidity();
   }
+  getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+  }
+  getTempData = () => {
+    //return new Promise((resolve, reject) => {
+      var date = new Date();
+      const questions = [];
 
-  getTempData = async () => {
-    console.log("in graph");
-    var i=0;
-    const questions = [];
-
-    // DOING GET API REQUEST TO FETCH THE TEMP  STATISTICS
-    const result = await fetch(
-      `http://cm1.sensegiz.com/sensegiz-api/temperature`,
-      {
+      // DOING GET API REQUEST TO FETCH THE TEMP  STATISTICS
+      fetch(`http://cm1.sensegiz.com/sensegiz-api/temperature`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           uid: "8",
           "Api-Key": "175748dfd70bc49b190aacf3a5ce0d86"
         }
-      }
-    );
-   
-    const resultJson = await result.json();
-    console.log(JSON.stringify(resultJson));
-    
-    var date = new Date();
-
-    resultJson.records.forEach(item => {
-            if (date.getDate() === new Date(item.received_on).getDate())
-            { questions.push({'name': item.device_value, 'Temperature': item.device_value,'Humidity': 10+i});
-            i++
-          }
-     
-    })
-
- 
-    this.setState({
-       resultJson: questions
-    });
+      })
+        .then(res => res.json())
+        .then(resultJson => {
+          resultJson.records.forEach(item => {
+            if (date.getDate() === new Date(item.received_on).getDate()) {
+              console.log("##3");
+              questions.push({
+                name: item.received_on,
+                Temperature: item.device_value,
+                Humidity:  item.device_value - this.getRandomInt(10)
+              });
+              
+            }
+            
+          });
+          
+          this.setState({resultJson:questions});
+          //resolve(questions);
+        })
+        .catch(val => {
+         // reject(val);
+        });
+   // });
   };
-  getHumidity = async () => {
-    var date = new Date();
-    var i=0;
-    const questions = [];
-    console.log(date);
+  getHumidity = () => {
+   // return new Promise((resolve, reject) => {
+      var date = new Date();
 
-    // DOING GET API REQUEST TO FETCH THE TEMP  STATISTICS
-    const result = await fetch(
-      `http://cm1.sensegiz.com/sensegiz-api/humidity`,
-      {
+      const questions = [];
+
+      // DOING GET API REQUEST TO FETCH THE TEMP  STATISTICS
+      fetch(`http://cm1.sensegiz.com/sensegiz-api/humidity`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           uid: "8",
           "Api-Key": "175748dfd70bc49b190aacf3a5ce0d86"
         }
-      }
-    );
-    const resultJson = await result.json();
-    //console.log(JSON.stringify(resultJson));
+      })
+        .then(res => res.json())
+        .then(resultJson => {
+          resultJson.records.forEach(item => {
+            if (date.getMonth() === new Date(item.received_on).getMonth()) {
+              questions.push({
+                name: item.received_on,
+                Humidity: item.device_value
 
-    resultJson.records.forEach(item => {
-      if (date.getDate() === new Date(item.received_on).getDate())
-      {
-      questions.push({'name': item.device_value,'Humidity': item.device_value,'Temperature': 10+i});
-      }
-      i++;
-    })
-
-   
-    this.setState({
-       resultJson: questions
+              });
+            }
+          });
+         // resolve(questions);
+        })
+        .catch(val => {
+         // reject(val);
+       // });
     });
   };
 
@@ -214,7 +211,7 @@ class Dashboard extends Component {
                 <StatsCard
                   bigIcon={<i className="fa fa-thermometer text-warning" />}
                   statsText="Temprature"
-                  statsValue="24 &#176;C"
+                  statsValue="24 °C"
                   statsIcon={<i className="fa fa-refresh" />}
                   statsIconText="Updated now"
                 />
@@ -305,7 +302,11 @@ class Dashboard extends Component {
                             stroke="#8884d8"
                             activeDot={{ r: 8 }}
                           />
-                          <Line type="monotone" dataKey="Humidity" stroke="#82ca9d" />
+                          <Line
+                            type="monotone"
+                            dataKey="Humidity"
+                            stroke="#82ca9d"
+                          />
                         </LineChart>
                       </div>
                     }
@@ -315,7 +316,6 @@ class Dashboard extends Component {
                   <Card
                     title="Email Statistics"
                     category="Last Campaign Performance"
-                    stats="Campaign sent 2 days ago"
                     content={
                       <div
                         id="chartPreferences"
@@ -343,8 +343,16 @@ class Dashboard extends Component {
                             fill="#8884d8"
                             stroke="#8884d8"
                           />
-                          <Bar dataKey="Temperature" barSize={20} fill="#413ea0" />
-                          <Line type="monotone" dataKey="Humidity" stroke="#ff7300" />
+                          <Bar
+                            dataKey="Temperature"
+                            barSize={20}
+                            fill="#413ea0"
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="Humidity"
+                            stroke="#ff7300"
+                          />
                           {/* <Scatter dataKey="cnt" fill="red" /> */}
                         </ComposedChart>
                       </div>
