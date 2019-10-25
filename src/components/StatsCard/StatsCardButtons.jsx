@@ -20,30 +20,34 @@ import { Row, Col } from "react-bootstrap";
 
 export class StatsCard extends Component {
   render() {
-    console.log(this.props)
     return (
-      <div className="card card-stats" >
-        <div className="content" >
+      <div className="card card-stats">
+        <div className="content">
           <Row>
-            <Col xs={5} >
-              <div className="icon-big text-center icon-warning">
-                {this.props.bigIcon}
+            <Col xs={5}>
+              <div>
+                <h5>
+                  <b>
+                    {this.props.statsValue}
+                  </b>
+                </h5>
+              </div>
+              <div style={{ textAlign: "left", marginTop: "9px" }}>
+                <h5>
+                  <b>
+                    {this.props.value} &deg; C
+                  </b>
+                </h5>
               </div>
             </Col>
             <Col xs={7}>
-              <div className="numbers">
-                <p>{this.props.statsText}</p>
-                
-            {this.props.statsValue}
+              <div className="numbers" style={{marginTop: '10px'}}>
+                <p>
+                  {this.props.statsText}
+                </p>
               </div>
             </Col>
           </Row>
-          <div className="footer">
-            <hr />
-            <div className="stats">
-              {this.props.statsIcon} {this.props.statsIconText}
-            </div>
-          </div>
         </div>
       </div>
     );

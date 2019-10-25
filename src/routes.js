@@ -37,6 +37,20 @@ const dashboardRoutes = [
     icon: "pe-7s-graph",
     component: Dashboard,
     layout: "/admin"
+  },
+  {
+    path: "/table",
+    name: "VFD Buttons",
+    icon: "pe-7s-note2",
+    component: TableList,
+    layout: "/admin"
+  },
+  {
+    path: "/notifications",
+    name: "Energy Statistics",
+    icon: "pe-7s-bell",
+    component: Notifications,
+    layout: "/admin"
   }
 
   

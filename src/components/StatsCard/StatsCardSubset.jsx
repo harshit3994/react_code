@@ -23,7 +23,7 @@ export class StatsCard extends Component {
     return (
       <div className="card card-stats" >
         <div className="content" >
-          <Row>
+          <Row style={{marginBottom:"0px"}}>
             <Col xs={5}>
               <div className="icon-big text-center icon-warning">
                 {this.props.bigIcon}
@@ -31,8 +31,8 @@ export class StatsCard extends Component {
             </Col>
             <Col xs={7}>
               <div className="numbers">
-                <p>{this.props.statsText}</p>
-                
+                <p><b>{this.props.statsText}</b></p>
+                <h6 style={{fontSize:'15px'}}>{this.props.statsValue }&deg; C</h6>
               </div>
             </Col>
           </Row>

@@ -70,14 +70,25 @@ class Dashboard extends Component {
       showComponent1: true,
       showComponent2: false,
       resultJson: [],
-      resultJson1: []
+      resultJson1: [],
+      sum : 0,
+      sumHumid: 0
     };
     this._onButtonClick1 = this._onButtonClick1.bind(this);
     this._onButtonClick2 = this._onButtonClick2.bind(this);
   }
 
   componentDidMount() {
-    this.getTempData();
+   
+  if(this.props.history.location.state)
+  {
+    this.getTempData("05");
+    this.getHumidity("06");
+  }else{
+    this.getTempData("01");
+    this.getHumidity("02");
+  }
+   
   }
 
   _onButtonClick1() {
@@ -100,14 +111,25 @@ class Dashboard extends Component {
   getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
   }
-  getTempData = () => {
+  getTempData = (device_id) => {
     //return new Promise((resolve, reject) => {
     var date = new Date();
     const questions = [];
-   // console.log(this.props.location.state.device_id);
+    let device_idmod = '';
+    let sum =0,l=0;
+    //console.log(this.props.location.state);
+    //console.log(this.props.history.location.state.device_id);
     // DOING GET API REQUEST TO FETCH THE TEMP  STATISTICS
+
+    if(device_id === "01" || device_id ==="02")
+    {
+      device_idmod = device_id
+    }else{
+      device_idmod = this.props.history.location.state.device_id;
+    }
+    try{
     fetch(
-      `http://cm1.sensegiz.com/sensegiz-api/temperature/546C0E9FCC79/14`,
+      `http://cm1.sensegiz.com/sensegiz-api/temperature/546C0E9FCC79/${device_idmod}`,
       {
         method: "GET",
         headers: {
@@ -121,25 +143,41 @@ class Dashboard extends Component {
       .then(resultJson => {
       
         resultJson.records.forEach(item => {
-          console.log("##3");
+        
+          sum =sum + Math.round(item.device_value);
           questions.push({
             name: item.received_on,
             Temperature: item.device_value
           });
+          l++;
+        
         });
-
+sum = Math.round(sum/l)-1;
         this.setState({ resultJson: questions });
+        this.setState({sum : sum})
       });
+    } catch(e)
+    {
+      // do nothing
+    }
   };
-  getHumidity = () => {
+  getHumidity = (device_id) => {
     // return new Promise((resolve, reject) => {
     var date = new Date();
-
+    let device_idmod = '';
     const questions = [];
+    let sum = 0,l=0;
+
+    if(device_id === "01" || device_id ==="02")
+    {
+      device_idmod = device_id
+    }else{
+      device_idmod = this.props.history.location.state.device_id;
+    }
 
     // DOING GET API REQUEST TO FETCH THE TEMP  STATISTICS
     fetch(
-      `http://cm1.sensegiz.com/sensegiz-api/humidity/546C0E9FCC79/14`,
+      `http://cm1.sensegiz.com/sensegiz-api/humiditystream/546C0E9FCC79/${device_idmod}`,
       {
         method: "GET",
         headers: {
@@ -151,12 +189,19 @@ class Dashboard extends Component {
     )
       .then(res => res.json())
       .then(resultJson => {
+        console.log(JSON.stringify(resultJson))
         resultJson.records.forEach(item => {
+          
+          sum = sum + Math.round(item.device_value);
           questions.push({
             name: item.received_on,
             Humidity: item.device_value
           });
+          console.log(sum +" -"+ l)
+          l++;
         });
+        sum = Math.round(sum/l);
+        this.setState({ sumHumid: sum });
         this.setState({ resultJson1: questions });
       });
   };
@@ -171,10 +216,11 @@ class Dashboard extends Component {
                 <StatsCard
               
                   bigIcon={<i className="fa fa-thermometer text-warning" />}
-                  statsText="Temprature"
-                  statsValue="24 °C"
+                  statsText="Temperature"
+                  statsValue={this.state.sum}
                   statsIcon={<i className="fa fa-refresh" />}
                   statsIconText="Updated now"
+                  temp = "true"
                 />
               </div>
             </Col>
@@ -182,10 +228,11 @@ class Dashboard extends Component {
               <div onClick={this._onButtonClick2}>
                 <StatsCard
                   bigIcon={<i className="pe-7s-wallet text-success" />}
-                  statsText="AC"
-                  statsValue="$1,345"
+                  statsText="Humidity"
+                  statsValue={this.state.sumHumid}
                   statsIcon={<i className="fa fa-calendar-o" />}
-                  statsIconText="Last day"
+                  statsIconText="Updated Now"
+                  temp = "false"
                 />
               </div>
             </Col>
@@ -231,8 +278,8 @@ class Dashboard extends Component {
                 </Col>
               : <Col md={12} sm={6}>
                   <Card
-                    title="Email Statistics"
-                    category="Last Campaign Performance"
+                    title="Humidity Statistics"
+                  
                     content={
                       <div
                         id="chartPreferences"

@@ -440,7 +440,7 @@ body > .navbar-collapse[data-color="purple"]:after {
   float: right;
   width: calc(100% - 260px); }
   .main-panel > .content {
-    padding: 15px 15px 10px;
+    padding: 30px 15px;
     min-height: calc(100% - 123px); }
   .main-panel > .footer {
     border-top: 1px solid #e7e7e7; }
@@ -1377,7 +1377,7 @@ body > .navbar-collapse[data-color="purple"]:after {
   .navbar .btn-simple {
     font-size: 16px; }
   .navbar.fixed {
-    width: calc(100% - $sidebar-width);
+    width: calc(100% - calc(100% - 260px));
     right: 0;
     left: auto;
     border-radius: 0; }
@@ -1887,7 +1887,7 @@ body > .navbar-collapse[data-color="purple"]:after {
     line-height: 59px; }
 
 .card-stats .numbers {
-  font-size: 2em;
+  font-size: 20px;
   text-align: right; }
   .card-stats .numbers p {
     margin: 0; }
