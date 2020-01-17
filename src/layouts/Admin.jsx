@@ -1,20 +1,4 @@
-/*!
 
-=========================================================
-* Light Bootstrap Dashboard React - v1.3.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/light-bootstrap-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/light-bootstrap-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React, { Component } from "react";
 import { Route, Switch } from "react-router-dom";
 import NotificationSystem from "react-notification-system";
@@ -28,7 +12,7 @@ import { style } from "variables/Variables.jsx";
 
 import routes from "routes.js";
 
-import image from "assets/img/sidebar-3.jpg";
+import image from "assets/img/sidebar-2.jpg";
 
 class Admin extends Component {
   constructor(props) {
@@ -329,7 +313,7 @@ class Admin extends Component {
     })
       .then(res => res.json())
       .then(resultJson => {
-        console.log('resultJson'+JSON.stringify(resultJson));
+        //console.log('resultJson'+JSON.stringify(resultJson));
 
         resultJson.records.forEach(item => {
           if (arr[item.device_id]) {
@@ -347,7 +331,7 @@ class Admin extends Component {
         });
       }).then(() =>{
     //create array dynamically
-    console.log("arr" + JSON.stringify(arr));
+    //console.log("arr" + JSON.stringify(arr));
         for (var key in arr) {
          
           if (arr.hasOwnProperty(key)) {
@@ -455,16 +439,7 @@ class Admin extends Component {
                   data: Math.round(arr[key] / l[key]) - 1
                 });
                 break;
-              case "0C":
-                  console.log("in 0c");
-                stateArr.push({
-                  name: "UCB BOYS",
-                  coin_id: "0C",
-                  style: "fa fa-stack-exchange text-warning",
-                  data: Math.round(arr[key] / l[key]) - 1,
-                  button_id: '1501'
-                });
-                break;
+            
               case "0D":
                   console.log("in 0d");
                 stateArr.push({
@@ -611,7 +586,7 @@ class Admin extends Component {
           }
           len++;
         }
-      console.log("statearr"+JSON.stringify(stateArr));
+      //console.log("statearr"+JSON.stringify(stateArr));
 
         this.setState({ array: stateArr });
      

@@ -1,26 +1,9 @@
-/*!
-
-=========================================================
-* Light Bootstrap Dashboard React - v1.3.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/light-bootstrap-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/light-bootstrap-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React, { Component } from "react";
 import { NavLink } from "react-router-dom";
 
 import AdminNavbarLinks from "../Navbars/AdminNavbarLinks.jsx";
 
-import logo from "assets/img/reactlogo.png";
+import logo from "assets/img/shopperstop.jpeg";
 
 class Sidebar extends Component {
   constructor(props) {
@@ -50,25 +33,17 @@ class Sidebar extends Component {
         data-color={this.props.color}
         data-image={this.props.image}
       >
-          {this.props.hasImage ? (
-            <div className="sidebar-background" style={sidebarBackground} />
-          ) : (
-            null
-          )}
+        {this.props.hasImage
+          ? <div className="sidebar-background" style={sidebarBackground} />
+          : null}
         <div className="logo">
-          <a
-            href=""
-            className="simple-text logo-mini"
-          >
+          <a href="" className="simple-text logo-mini">
             <div className="logo-img">
               <img src={logo} alt="logo_image" />
             </div>
           </a>
-          <a
-            href=""
-            className="simple-text logo-normal"
-          >
-            Graphical Statistics
+          <a href="" className="simple-text logo-normal">
+            SHOPPERS STOP
           </a>
         </div>
         <div className="sidebar-wrapper">
@@ -91,7 +66,9 @@ class Sidebar extends Component {
                       activeClassName="active"
                     >
                       <i className={prop.icon} />
-                      <p>{prop.name}</p>
+                      <p>
+                        {prop.name}
+                      </p>
                     </NavLink>
                   </li>
                 );

@@ -1,20 +1,3 @@
-/*!
-
-=========================================================
-* Light Bootstrap Dashboard React - v1.3.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/light-bootstrap-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/light-bootstrap-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React, { Component } from "react";
 //import Button from 'react-bootstrap/Button'
 
@@ -43,44 +26,7 @@ import {
   Tooltip,
   Legend
 } from "recharts";
-
-const data = [
-  {
-    name: "Page A",
-    pv: 2400,
-    amt: 2400
-  },
-  {
-    name: "Page B",
-    pv: 1398,
-    amt: 2210
-  },
-  {
-    name: "Page C",
-    pv: 9800,
-    amt: 2290
-  },
-  {
-    name: "Page D",
-    pv: 3908,
-    amt: 2000
-  },
-  {
-    name: "Page E",
-    pv: 4800,
-    amt: 2181
-  },
-  {
-    name: "Page F",
-    pv: 3800,
-    amt: 2500
-  },
-  {
-    name: "Page G",
-    pv: 4300,
-    amt: 2100
-  }
-];
+//import { Promise } from "q";
 
 const customStyles = {
   content: {
@@ -95,6 +41,7 @@ const customStyles = {
 
 class Notifications extends Component {
   _isMounted = false;
+  energyData = [];
   constructor() {
     super();
     this.state = {
@@ -104,13 +51,20 @@ class Notifications extends Component {
       datas: [],
       monthly: [],
       daily: [],
-      weekly: []
+      weekly: [],
+      energymeter: "SS_ENERGY_METER_FF",
+      reminderDate: new Date(),
+      value: "Time(Hrs)",
+      color:'green'
     };
 
     this.setWeekly = this.setWeekly.bind(this);
     this.setDaily = this.setDaily.bind(this);
     this.setMonthly = this.setMonthly.bind(this);
+    this.inputDataFF = this.inputDataFF.bind(this);
+    this.inputDataGF = this.inputDataGF.bind(this);
   }
+
   componentDidMount() {
     this._isMounted = true;
     this.getData();
@@ -118,24 +72,68 @@ class Notifications extends Component {
   componentWillUnmount() {
     this._isMounted = false;
   }
+  fetchEnergyData(startdate, energymeter) {
+    return new Promise((resolve, reject) => {
+      fetch(
+        `http://13.232.167.55:3000/v1/api/energy/${energymeter}/${startdate}/${new Date().getFullYear()}${new Date().getMonth() +
+          1}30220707`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            uid: "8",
+            "Api-Key": "175748dfd70bc49b190aacf3a5ce0d86"
+          }
+        }
+      )
+        .then(res => res.json())
+        .then(resultJson => {
+          if (resultJson.data.LastEvaluatedKey) {
+            this.energyData = [...this.energyData, ...resultJson.data.Items];
+            resolve(
+              this.fetchEnergyData(
+                resultJson.data.LastEvaluatedKey.timestamp,
+                this.state.energymeter
+              ).then(() => {
+                return this.energyData;
+              })
+            );
+          } else {
+            resolve(resultJson.data.Items);
+          }
+        })
+        .catch(function(err) {
+          console.log(err);
+          reject(err);
+        });
+    });
+  }
+  // `${date.getFullYear()}${date.getMonth() + 1}${date.Date() + 1}040707`,
+  //     this.state.energymeter,
+  //     //`${date.getFullYear()}${date.getMonth() + 1}${date.Date() + 1}220707`
+  getIndividualData = () => {
+    const date = this.state.reminderDate;
 
-  getData = () => {
-    const arrWeekly = {},
-      arrdaily = {},
-      lendaily = new Array(31).fill(0),
-      arrMonthly = {},
-      lenmonthly = new Array(31).fill(0),
-      lenweekly = new Array(31).fill(0);
-    var arrMonthlyMod = [];
-    var arrWeeklyMod = [];
-    var arrdailyMod = [];
-    var difflastday = 0;
-    var counter = new Array(31).fill(0),
-      counter1 = new Array(31).fill(0);
-    //for (var i = 0; i < 31; i++) arrMonthlyMod.push({});
+    const arrDaily = {};
+    //const day = 0;
+    var arrdailyindividual = [];
+    debugger;
+    if (date.getDate() > 0 && date.getDate() <= 9) {
+      var day = "0" + date.getDate();
+    } else {
+      day = date.getDate();
+    }
 
+    console.log(
+      `http://13.232.167.55:3000/v1/api/energy/${this.state
+        .energymeter}/${date.getFullYear()}${date.getMonth() +
+        1}${date.getDate()}040707/${date.getFullYear()}${date.getMonth() +
+        1}${day}220707`
+    );
     fetch(
-      `http://13.232.167.55:3000/v1/api/energy/SS_ENERGY_METER_FF/20191001100707/20191030220707`,
+      `http://13.232.167.55:3000/v1/api/energy/${this.state
+        .energymeter}/${date.getFullYear()}${date.getMonth() +
+        1}${day}040707/${date.getFullYear()}${date.getMonth() + 1}${day}220707`,
       {
         method: "GET",
         headers: {
@@ -147,81 +145,182 @@ class Notifications extends Component {
     )
       .then(res => res.json())
       .then(resultJson => {
-        var a, b, c, d;
-        let today_date = new Date().getDate();
-        resultJson.data.forEach(item => {
-          //  console.log(typeof item.timestamp)
-          var month = item.timestamp.toString().substring(4, 6);
-          var day = item.timestamp.toString().substring(6, 8);
-          if (day > 0 && day < 10) {
-            day = day.substr(1);
+        resultJson.data.Items.forEach(item => {
+          const dateinIST = this.getDateinIST(item);
+          const hourforsingle = dateinIST.getHours();
+          if (
+            dateinIST.getDate() == date.getDate() &&
+            hourforsingle >= 10 &&
+            hourforsingle <= 22
+          ) {
+            const energy = item.energy / 1000.0;
+            if (arrDaily[hourforsingle]) {
+              if (energy > arrDaily[hourforsingle].max) {
+                arrDaily[hourforsingle].max = energy;
+              } else if (energy < arrDaily[hourforsingle].min) {
+                arrDaily[hourforsingle].min = energy;
+              }
+            } else {
+              arrDaily[hourforsingle] = { min: energy, max: energy };
+            }
           }
+        });
 
-          var hour = item.timestamp.toString().substring(8, 10);
+        for (let i = 0; i < 31; i++) {
+          if (arrDaily[i]) {
+            arrdailyindividual.push({
+              energy: arrDaily[i].max - arrDaily[i].min,
+              name: i + "th hr"
+            });
+          }
+        }
+        console.log("arr is98987987987987987" + arrdailyindividual);
+        this.setState({ datas: arrdailyindividual });
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
+  getDateinIST(item) {
+    var yearUTC = item.timestamp.toString().substring(0, 4);
+    var monthUTC = item.timestamp.toString().substring(4, 6);
+    monthUTC = (parseInt(monthUTC) - 1).toString();
+    console.log(typeof monthUTC);
+    var dayUTC = item.timestamp.toString().substring(6, 8);
+    var hourUTC = item.timestamp.toString().substring(8, 10);
+    var minUTC = item.timestamp.toString().substring(10, 12);
+    var secondUTC = item.timestamp.toString().substring(12, 14);
+    var dateUTC = new Date(
+      yearUTC,
+      monthUTC,
+      dayUTC,
+      hourUTC,
+      minUTC,
+      secondUTC
+    );
+    var dateUTC = dateUTC.getTime();
+    var dateIST = new Date(dateUTC);
+    //date shifting for IST timezone (+5 hours and 30 minutes)
+    dateIST.setHours(dateIST.getHours() + 5);
+    dateIST.setMinutes(dateIST.getMinutes() + 30);
+    return dateIST;
+  }
+
+  getData = async () => {
+    debugger;
+    const arrWeekly = {},
+      arrdaily = {},
+      lendaily = new Array(31).fill(0),
+      arrMonthly = {},
+      arrDaily = {};
+
+    const arrMonth = [
+      "Jan",
+      "Feb",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ];
+
+    var arrMonthlyMod = [];
+    var arrWeeklyMod = [];
+    var arrdailyMod = [];
+    var consumptionDaily = 0;
+
+    this.fetchEnergyData(
+      `${new Date().getFullYear()}${new Date().getMonth() + 1}01040707`,
+      this.state.energymeter
+    )
+      .then(resultJson => {
+        console.log("result is" + JSON.stringify(resultJson));
+
+        resultJson.forEach(item => {
+          const dateIST = this.getDateinIST(item);
+          var month = dateIST.getMonth();
+
+          var hour = dateIST.getHours();
+          var day = dateIST.getDate();
+
           //  console.log(day);
-          if (month - 1 === new Date().getMonth()) {
+
+          if (month === new Date().getMonth()) {
             // For weekly
-            if (new Date().getDate() - parseInt(day) <= 16) {
-             console.log(new Date().getDate() - parseInt(day));
-              if (hour == 10 || hour == 22) {
-                debugger;
-                if (arrWeekly[day]) {
-                  arrWeekly[day][hour] = item.energy / 1000.0;
-                } else {
-                  arrWeekly[day] = { [hour]: item.energy / 1000.0 };
+            const energy = item.energy / 1000.0;
+            if (new Date().getDate() - parseInt(day) < 7) {
+              if (arrWeekly[day]) {
+                if (energy > arrWeekly[day].max) {
+                  arrWeekly[day].max = energy;
+                } else if (energy < arrWeekly[day].min) {
+                  arrWeekly[day].min = energy;
                 }
+              } else {
+                arrWeekly[day] = { min: energy, max: energy };
               }
             }
 
             // For monthly
-            if (hour == 10 || hour == 22) {
-              if (arrMonthly[day]) {
-                arrMonthly[day][hour] = item.energy / 1000.0;
+
+            if (arrMonthly[day]) {
+              if (energy > arrMonthly[day].max) {
+                arrMonthly[day].max = energy;
+              } else if (energy < arrMonthly[day].min) {
+                arrMonthly[day].min = energy;
+              }
+            } else {
+              arrMonthly[day] = { min: energy, max: energy };
+            }
+
+            // For daily
+            // if (new Date().getDate() === parseInt(day)) {
+            // debugger;
+
+            if (day == new Date().getDate() && hour >= 10 && hour <= 22) {
+              const energy = item.energy / 1000.0;
+              if (arrDaily[hour]) {
+                if (energy > arrDaily[hour].max) {
+                  arrDaily[hour].max = energy;
+                } else if (energy < arrDaily[hour].min) {
+                  arrDaily[hour].min = energy;
+                }
               } else {
-                arrMonthly[day] = { [hour]: item.energy / 1000.0 };
+                arrDaily[hour] = { min: energy, max: energy };
               }
             }
           }
         });
-        console.log("arrWeekly" + JSON.stringify(arrWeekly));
-        //difflastday = arrdaily[22] - arrdaily[10];
-        this.setState({
-          lastday: [
-            { name: "Date", data: today_date, color:"lightblue"},
-            { name: "Total Energy", data: "0" +'KWH',color:"lightblue"},
-            { name: "Total Run Hrs", data: "12 Hrs" ,color:"lightblue"},
-            { name: "Consumption", data: "0"+'/hr',color:"lightblue" }
-          ]
-        });
-
-        for (var i = 0; i < 31; i++) {
+        debugger;
+        for (var i = 0; i <= 31; i++) {
           if (arrMonthly[i]) {
-            //  debugger;
-            //  arrMonthly[i] = arrMonthly[i] / lenmonthly[i];
-
             arrMonthlyMod.push({
-              energy: arrMonthly[i]["22"] - arrMonthly[i]["10"],
-              name: i
+              energy: arrMonthly[i].max - arrMonthly[i].min,
+              name: i + " " + arrMonth[new Date().getMonth()]
             });
           }
           if (arrWeekly[i]) {
             // arrWeekly[i] = arrWeekly[i] / lenweekly[i];
 
             arrWeeklyMod.push({
-              energy: arrWeekly[i]["22"] - arrWeekly[i]["10"],
-              name: i
+              energy: arrWeekly[i].max - arrWeekly[i].min,
+              name: i + " " + arrMonth[new Date().getMonth()]
             });
           }
-          if (arrdaily[i] !== 0) {
-            arrdaily[i] = arrdaily[i] / lendaily[i];
-
-            arrdailyMod.push({ energy: arrdaily[i], name: i + "-" + (i + 1) });
+          if (arrDaily[i]) {
+            arrdailyMod.push({
+              energy: arrDaily[i].max - arrDaily[i].min,
+              name: i + "th hr"
+            });
+            consumptionDaily =
+              consumptionDaily + arrDaily[i].max - arrDaily[i].min;
           }
         }
-        // console.log("data is" + JSON.stringify(resultJson.data));
-        // console.log("in month" + JSON.stringify(arrMonthlyMod));
-        // console.log("week" + JSON.stringify(arrdailyMod));
-        // console.log(this.state.datas);
 
         if (this._isMounted) {
           this.setState({
@@ -231,21 +330,67 @@ class Notifications extends Component {
         this.setState({ monthly: arrMonthlyMod });
         this.setState({ daily: arrdailyMod });
         this.setState({ weekly: arrWeeklyMod });
+        this.setState({
+          lastday: [
+            {
+              name: "DATE",
+              data:
+                new Date().getDate() + "th " + arrMonth[new Date().getMonth()],
+              color: "lightblue"
+            },
+            {
+              name: "Total Energy",
+              data: consumptionDaily.toFixed(0) + "KWH",
+              color: "lightblue"
+            },
+            {
+              name: "Run Hrs",
+              data: new Date().getHours() - 10,
+              color: "lightblue"
+            },
+            {
+              name: "Consumption",
+              data: (consumptionDaily / 12).toFixed(0) + "/hr",
+              color: "lightblue"
+            }
+          ]
+        });
+      })
+      .catch(err => {
+        console.log(err);
       });
   };
 
   setWeekly() {
     this.setState({ datas: this.state.weekly });
+    this.setState({ value: "Time(Days)" });
   }
-  onChange = date => this.setState({ date });
+  onChange = val => {
+    console.log(val);
+    this.setState(val);
+    //console.log(this.state.reminderDate);
+  };
 
   setDaily() {
     this.setState({ datas: this.state.daily });
+    this.setState({ value: "Time(Hrs)" });
   }
 
   setMonthly() {
-    this.setState({ datas: this.state.monthly });
+  
+    this.setState({ datas: this.state.monthly ,color:'red '});
+    this.setState({ value: "Time(Days)" });
   }
+  inputDataFF = () => {
+    this.setState({ energymeter: "SS_ENERGY_METER_FF" });
+
+    this.getData();
+  };
+  inputDataGF = () => {
+    this.setState({ energymeter: "SS_ENERGY_METER_GF" });
+    this.energyData = [];
+    this.getData();
+  };
   renderAddTaskModal = () => {
     // debugger;
     return (
@@ -280,27 +425,28 @@ class Notifications extends Component {
           <Row style={{ marginBottom: "66px" }}>
             <Col lg={6} sm={6}>
               <DropdownButton title="Energy Meter">
-                <MenuItem onClick={this.inputData}>SS_ENERGY_METER_GF</MenuItem>
-                <MenuItem onClick={this.inputData}>SS_ENERGY_METER_FF</MenuItem>
+                <MenuItem onClick={this.inputDataGF}>
+                  SS_ENERGY_METER_GF
+                </MenuItem>
+                <MenuItem onClick={this.inputDataFF}>
+                  SS_ENERGY_METER_FF
+                </MenuItem>
               </DropdownButton>
               <InputGroup
                 style={{ position: "absolute", top: "1px", left: "154px" }}
               >
                 <DateTimePicker
-                  onChange={this.onChange}
-                  value={this.state.date}
+                  onChange={e => this.onChange({ reminderDate: e })}
+                  value={this.state.reminderDate}
                 />
 
-                <InputGroupAddon
-                  addonType="append"
-                  style={{
-                    position: "absolute",
-                    left: "190px",
-                    top: "0px"
-                  }}
+                <Button
+                  style={{ marginLeft: "10px" }}
+                  color="secondary"
+                  onClick={() => this.getIndividualData()}
                 >
-                  <Button color="secondary">Submit</Button>
-                </InputGroupAddon>
+                  Submit
+                </Button>
               </InputGroup>
             </Col>
 
@@ -361,14 +507,14 @@ class Notifications extends Component {
                       <XAxis
                         dataKey="name"
                         label={{
-                          value: "Time",
+                          value: this.state.value,
                           position: "insideBottom",
-                          offset: -5
+                          offset: -2
                         }}
                       />
                       <YAxis
                         label={{
-                          value: "KWH",
+                          value: "Energy(KWH)",
                           angle: -90,
                           position: "insideLeft"
                         }}
@@ -381,6 +527,21 @@ class Notifications extends Component {
                 }
               />
             </Col>
+          </Row>
+          <Row>
+            <Button
+              color="success"
+              onClick={this.setMonthly}
+              style={{
+                marginLeft: "400px",
+                width: "200px",
+                height: "200px",
+                borderRadius: "50%",
+                backgroundColor:this.state.color
+              }}
+            >
+              <h3>Auto mode</h3>
+            </Button>
           </Row>
         </Grid>
       </div>

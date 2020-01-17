@@ -32,12 +32,11 @@ class TableList extends Component {
     };
   }
 
-  patchreq(id,check)
-  {
-    console.log('in patch')
+  patchreq(id, check) {
+    console.log("in patch");
     fetch(`http://13.232.167.55:3000/v1/api/ac/BOMB/${id}`, {
       method: "PATCH",
-      body: JSON.stringify({status:check}),
+      body: JSON.stringify({ status: check }),
       headers: {
         "Content-Type": "application/json",
         uid: "8",
@@ -46,13 +45,12 @@ class TableList extends Component {
     })
       .then(res => res.json())
       .then(resultJson => {
-console.log("done")
-
-
-      })
+        console.log("done");
+      });
   }
   render() {
     console.log("props" + JSON.stringify(this.props.name));
+
     return (
       <div className="content" style={{ backgroundColor: "#534848" }}>
         <Grid fluid>
@@ -65,8 +63,7 @@ console.log("done")
                   item.coin_id === "05" ||
                   item.coin_id === "09" ||
                   item.coin_id === "03" ||
-                  item.coin_id === "01" 
-                 
+                  item.coin_id === "01"
                 ) {
                   return (
                     <StatsCard
@@ -77,13 +74,12 @@ console.log("done")
                           width={70}
                           onChange={checked => {
                             // do some logic with item
-                            if(checked)
-                            {
-                            this.patchreq(item.button_id,'1');
-                            }else{
-                              this.patchreq(item.button_id,'0');
+                            if (checked) {
+                              this.patchreq(item.button_id, "1");
+                            } else {
+                              this.patchreq(item.button_id, "0");
                             }
-                           
+
                             //this.setState({ isUserAdmin: checked });
                           }}
                         />
@@ -100,21 +96,29 @@ console.log("done")
 
             <Col md={6}>
               {this.props.name.map((item, id) => {
-               if (
-                item.coin_id === "12" ||
-                item.coin_id === "14" ||
-                item.coin_id === "0F" ||
-                item.coin_id === "19" ||
-                item.coin_id === "18"
-               
-              ) {
+                if (
+                  item.coin_id === "12" ||
+                  item.coin_id === "14" ||
+                  item.coin_id === "0F" ||
+                  item.coin_id === "19" ||
+                  item.coin_id === "18"
+                ) {
                   return (
                     <StatsCard
                       bigIcon={<i className="fa fa-thermometer text-warning" />}
                       statsText={
                         <BootstrapSwitchButton
                           checked={true}
-                          onstyle="success"
+                          onChange={checked => {
+                            // do some logic with item
+                            if (checked) {
+                              this.patchreq(item.button_id, "1");
+                            } else {
+                              this.patchreq(item.button_id, "0");
+                            }
+
+                            //this.setState({ isUserAdmin: checked });
+                          }}
                           width={70}
                         />
                       }
